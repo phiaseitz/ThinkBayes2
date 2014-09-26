@@ -18,11 +18,25 @@ class Electorate(thinkbayes2.Suite):
     def Likelihood(self, data, hypo):
         """Computes the likelihood of the data under the hypothesis.
 
-        hypo: 
-        data: 
+        hypo: that  a certain percent of the voter population will vote 
+        the candidate
+        data: the poll data where 1.1 is the mean percentage point of error 
+        in favor of the candidate, 3.7 is the standard deviaion, and 53percent
+        of voters will vote
         """
-        like = 1
+        #Assuming that for this case, the hypothesis is correct
+        a_hypo = hypo
+        mean, std, measurement = data
+        e_hypo = measurement - a_hypo
+        like =  thinkbayes2.EvalNormalPdf(e_hypo, mean, std)
         return like
+    def ProbLose(self):
+        total = 0
+        for value, prob in self.Items():
+            if value < 50:
+                total += prob
+
+        return total
 
 
 def main():
@@ -37,6 +51,22 @@ def main():
     thinkplot.Pdf(suite, label='posterior')
     thinkplot.Show()
 
+    print (suite.Mean())
+    print (suite.Std())
+    print (suite.ProbLose())
+
+    thinkplot.Pdf(suite, label='prior')
+
+    newData = -2.3, 4.1, 49
+
+    suite.Update(newData)
+
+    thinkplot.Pdf(suite, label='posterior')
+    thinkplot.Show()
+
+    print (suite.Mean())
+    print (suite.Std())
+    print (suite.ProbLose())
 
 if __name__ == '__main__':
     main()
